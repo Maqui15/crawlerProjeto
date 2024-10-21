@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 from datetime import datetime
+import os
 
 # Variável global para armazenar os logs dos cursos
 logs = []
@@ -10,8 +11,13 @@ logs = []
 def salvar_csv(logs):
     # Pegar a data e hora atuais para o nome do arquivo
     now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    # Nome do arquivo CSV incluindo a data e hora
-    filename = f"cursos_log_{now}.csv"
+    # Definir o caminho completo para salvar o arquivo
+    caminho = r"C:\Users\Mathe\projeto"
+    # Verificar se o diretório existe, se não, criar
+    if not os.path.exists(caminho):
+        os.makedirs(caminho)
+    # Nome completo do arquivo CSV
+    filename = os.path.join(caminho, f"cursos_log_{now}.csv")
     # Criar o arquivo CSV e escrever os dados
     with open(filename, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
