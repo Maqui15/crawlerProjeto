@@ -33,46 +33,172 @@ def get_ucl_courses():
 
     # Verifica se a resposta é válida
     if response.status_code == 200:
-        soup = BeautifulSoup(response.content, 'html.parser')
+        import requests
 
-        # Extrai apenas os cursos dentro da ul com id="menu-graduacao-manguinhos"
-        cursos_ul = soup.find('ul', id='menu-graduacao-manguinhos')
-        if cursos_ul:
-            # Os cursos estão listados em <li>
-            cursos_ucl = cursos_ul.find_all('li')
-            courses_list = [curso.get_text(strip=True) for curso in cursos_ucl]
-            return courses_list
+
+# Função para buscar dados do site da Fucape
+
+
+def scrape_fucape():
+    url = 'https://www.fucape.br/vestibular/'
+
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+
+    except requests.exceptions.RequestException as e:
+        print(f"Erro ao acessar o site Fucape: {e}")
+        return
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # Imprime o conteúdo HTML da página para verificar a estrutura
+    print(soup.prettify())
+
+    cursos = []
+    for curso in soup.find_all('div', class_='course-info'):
+        try:
+            nome = curso.find('h2').text.strip()
+            data_inicio = curso.find('span', class_='start-date').text.strip()
+            data_fim = curso.find('span', class_='end-date').text.strip()
+            horario = curso.find('span', class_='course-time').text.strip()
+            publico = curso.find('span', class_='public').text.strip()
+            cursos.append([nome, data_inicio, data_fim, horario, publico])
+        except AttributeError:
+            print('Fucape: Alguma informação não pôde ser encontrada para este curso.')
+
+    print_results(cursos, "Fucape")
+
+# Função para buscar dados do site do VIX Cursos
+
+
+def scrape_vixcursos():
+    url = 'https://vixcursos.vitoria.es.gov.br/'
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f"Erro ao acessar o site VIX Cursos: {e}")
+        return
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    cursos = []
+    for curso in soup.find_all('div', class_='course-list'):
+        try:
+            nome = curso.find('h3').text.strip()
+            data_inicio = curso.find('span', class_='start-date').text.strip()
+            data_fim = curso.find('span', class_='end-date').text.strip()
+            horario = curso.find('span', class_='course-time').text.strip()
+            publico = curso.find('span', class_='target-public').text.strip()
+            cursos.append([nome, data_inicio, data_fim, horario, publico])
+        except AttributeError:
+            print(
+                'VIX Cursos: Alguma informação não pôde ser encontrada para este curso.')
+
+    print_results(cursos, "VIX Cursos")
+
+# Função para buscar dados do site Qualificar ES
+
+
+def scrape_qualificar():
+    url = 'https://qualificar.es.gov.br/'
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f"Erro ao acessar o site Qualificar ES: {e}")
+        return
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    cursos = []
+    for curso in soup.find_all('div', class_='course-container'):
+        try:
+            nome = curso.find('h3').text.strip()
+            data_inicio = curso.find('span', class_='start-date').text.strip()
+            data_fim = curso.find('span', class_='end-date').text.strip()
+            horario = curso.find('span', class_='course-time').text.strip()
+            publico = curso.find('span', class_='target-public').text.strip()
+            cursos.append([nome, data_inicio, data_fim, horario, publico])
+        except AttributeError:
+            print(
+                'Qualificar ES: Alguma informação não pôde ser encontrada para este curso.')
+
+    print_results(cursos, "Qualificar ES")
+
+# Função para buscar dados do site SENAI ES
+
+
+def scrape_senai():
+    url = 'https://senaies.com.br/'
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f"Erro ao acessar o site SENAI ES: {e}")
+        return
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    cursos = []
+    for curso in soup.find_all('div', class_='course-block'):
+        try:
+            nome = curso.find('h4').text.strip()
+            data_inicio = curso.find('span', class_='start-date').text.strip()
+            data_fim = curso.find('span', class_='end-date').text.strip()
+            horario = curso.find('span', class_='course-time').text.strip()
+            publico = curso.find('span', class_='course-audience').text.strip()
+            cursos.append([nome, data_inicio, data_fim, horario, publico])
+        except AttributeError:
+            print('SENAI ES: Alguma informação não pôde ser encontrada para este curso.')
+
+    print_results(cursos, "SENAI ES")
+
+# Função para apresentar resultados em formato de tabela
+
+
+def print_results(cursos, instituicao):
+    table = PrettyTable()
+    table.field_names = ["Curso", "Início", "Fim", "Horário", "Público"]
+
+    for curso in cursos:
+        table.add_row(curso)
+
+    print(f"\nResultados para {instituicao}:\n")
+    print(table)
+
+# Função principal para executar a raspagem
+
+
+def main_menu():
+    while True:
+        print("\nMenu de Raspagem de Cursos")
+        print("1. Buscar Fucape")
+        print("2. Buscar VIX Cursos")
+        print("3. Buscar Qualificar ES")
+        print("4. Buscar SENAI ES")
+        print("5. Sair")
+
+        escolha = input("Escolha uma opção: ")
+
+        if escolha == "1":
+            scrape_fucape()
+        elif escolha == "2":
+            scrape_vixcursos()
+        elif escolha == "3":
+            scrape_qualificar()
+        elif escolha == "4":
+            scrape_senai()
+        elif escolha == "5":
+            print("Saindo...")
+            break
         else:
-            return ["Nenhuma lista com o id 'menu-graduacao-manguinhos' foi encontrada."]
-    else:
-        return [f"Falha ao acessar a página da UCL. Status Code: {response.status_code}"]
+            print("Opção inválida. Tente novamente.")
 
 
-def get_ifes_courses():
-    # URL da IFES
-    url_ifes = "https://serra.ifes.edu.br/cursos/graduacao?view=default"
-    # Definindo um cabeçalho User-Agent
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'
-    }
-    response = requests.get(url_ifes, headers=headers)
-
-    # Verifica se a resposta é válida
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, 'html.parser')
-
-        # Busca pela div que contém os cursos
-        div_cursos = soup.find('div', class_='listagem-chamadas-secundarias')
-        if div_cursos:
-            # Os cursos estão listados em <h3>
-            cursos_ifes = div_cursos.find_all('h3')
-            courses_list = [curso.get_text(strip=True)
-                            for curso in cursos_ifes]
-            return courses_list
-        else:
-            return ["Div com a classe 'listagem-chamadas-secundarias' não encontrada."]
-    else:
-        return [f"Falha ao acessar a página da IFES. Status Code: {response.status_code}"]
+# Chamada para executar a função principal
+main_menu()
 
 
 def main():
