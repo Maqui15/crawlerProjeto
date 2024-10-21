@@ -1,21 +1,36 @@
 import requests
 from bs4 import BeautifulSoup
+import csv
+from datetime import datetime
+
+# Variável global para armazenar os logs dos cursos
+logs = []
+
+
+def salvar_csv(logs):
+    # Pegar a data e hora atuais para o nome do arquivo
+    now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    # Nome do arquivo CSV incluindo a data e hora
+    filename = f"cursos_log_{now}.csv"
+    # Criar o arquivo CSV e escrever os dados
+    with open(filename, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        # Escrever o cabeçalho
+        writer.writerow(["Data", "Instituição", "Curso"])
+        # Escrever os dados dos cursos da lista de logs
+        for log in logs:
+            writer.writerow([log["data"], log["instituicao"], log["curso"]])
+    print(f"\nOs cursos foram salvos em '{filename}'\n")
 
 
 def get_fucape_courses():
-    # URL da Fucape
     url_fucape = "https://fucape.br/graduacao/"
     response = requests.get(url_fucape)
 
-    # Verifica se a resposta é válida
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
-
-        # Busca pela div com o ID específico
         div_cursos = soup.find('div', {'data-id': '3a5acb3'})
         if div_cursos:
-            # Dentro dessa div, busca todos os elementos <h3> para obter os cursos
-            # Supondo que os cursos estão em tags <h3>
             cursos_fucape = div_cursos.find_all('h3')
             courses_list = [curso.get_text(strip=True)
                             for curso in cursos_fucape]
@@ -27,18 +42,13 @@ def get_fucape_courses():
 
 
 def get_ucl_courses():
-    # URL da UCL
     url_ucl = "https://www.ucl.br/graduacao/"
     response = requests.get(url_ucl)
 
-    # Verifica se a resposta é válida
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
-
-        # Extrai apenas os cursos dentro da ul com id="menu-graduacao-manguinhos"
         cursos_ul = soup.find('ul', id='menu-graduacao-manguinhos')
         if cursos_ul:
-            # Os cursos estão listados em <li>
             cursos_ucl = cursos_ul.find_all('li')
             courses_list = [curso.get_text(strip=True) for curso in cursos_ucl]
             return courses_list
@@ -49,22 +59,16 @@ def get_ucl_courses():
 
 
 def get_ifes_courses():
-    # URL da IFES
     url_ifes = "https://serra.ifes.edu.br/cursos/graduacao?view=default"
-    # Definindo um cabeçalho User-Agent
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'
     }
     response = requests.get(url_ifes, headers=headers)
 
-    # Verifica se a resposta é válida
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'html.parser')
-
-        # Busca pela div que contém os cursos
         div_cursos = soup.find('div', class_='listagem-chamadas-secundarias')
         if div_cursos:
-            # Os cursos estão listados em <h3>
             cursos_ifes = div_cursos.find_all('h3')
             courses_list = [curso.get_text(strip=True)
                             for curso in cursos_ifes]
@@ -75,40 +79,40 @@ def get_ifes_courses():
         return [f"Falha ao acessar a página da IFES. Status Code: {response.status_code}"]
 
 
+def adicionar_log(instituicao, cursos):
+    # Função para adicionar cursos à variável de logs
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Data e hora atual
+    for curso in cursos:
+        logs.append({"data": now, "instituicao": instituicao, "curso": curso})
+
+
 def main():
-    while True:
-        print("\nEscolha uma opção:")
-        print("1. Buscar cursos da Fucape")
-        print("2. Buscar cursos da UCL")
-        print("3. Buscar cursos da IFES")
-        print("4. Sair")
+    print("Iniciando coleta automática dos cursos...")
 
-        choice = input("\nDigite sua escolha (1/2/3/4): ")
+    # Fucape
+    print("\nBuscando cursos da Fucape...")
+    courses_fucape = get_fucape_courses()
+    print("Cursos da Fucape capturados:")
+    print("\n".join(courses_fucape))
+    adicionar_log("Fucape", courses_fucape)
 
-        if choice == '1':
-            print("\nBuscando cursos da Fucape...\n")
-            courses = get_fucape_courses()
-            print("\nCursos capturados da Fucape:\n")
-            print("\n".join(courses))
+    # UCL
+    print("\nBuscando cursos da UCL...")
+    courses_ucl = get_ucl_courses()
+    print("Cursos da UCL capturados:")
+    print("\n".join(courses_ucl))
+    adicionar_log("UCL", courses_ucl)
 
-        elif choice == '2':
-            print("\nBuscando cursos da UCL...\n")
-            courses = get_ucl_courses()
-            print("\nCursos capturados da UCL:\n")
-            print("\n".join(courses))
+    # IFES
+    print("\nBuscando cursos da IFES...")
+    courses_ifes = get_ifes_courses()
+    print("Cursos da IFES capturados:")
+    print("\n".join(courses_ifes))
+    adicionar_log("IFES", courses_ifes)
 
-        elif choice == '3':
-            print("\nBuscando cursos da IFES...\n")
-            courses = get_ifes_courses()
-            print("\nCursos capturados da IFES:\n")
-            print("\n".join(courses))
-
-        elif choice == '4':
-            print("Saindo...")
-            break
-
-        else:
-            print("Opção inválida. Tente novamente.")
+    # Salvar os logs no CSV ao finalizar todas as buscas
+    print("\nFinalizando e salvando os logs no arquivo CSV...")
+    salvar_csv(logs)
 
 
 if __name__ == "__main__":
