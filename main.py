@@ -110,9 +110,9 @@ def main():
     adicionar_log("UCL", courses_ucl)
 
     # IFES
-    print("\nBuscando cursos da IFES...")
+    print("\nBuscando cursos do IFES...")
     courses_ifes = get_ifes_courses()
-    print("Cursos da IFES capturados:")
+    print("Cursos do IFES capturados:")
     print("\n".join(courses_ifes))
     adicionar_log("IFES", courses_ifes)
 
