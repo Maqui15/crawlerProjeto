@@ -12,8 +12,7 @@ def ler_arquivos_csv(diretorio, filtrar_por=''):
                     leitor_csv = csv.reader(file)
                     print(f"Conteúdo do arquivo {arquivo}:")
                     for linha in leitor_csv:
-                        # Exibe apenas linhas que contêm o termo filtrado,
-                        # se houver
+                        # Exibe apenas linhas que contêm o termo filtrado, se houver
                         if filtrar_por.lower() in (str(item).lower()for item in linha):
                             print(linha)
                         elif not filtrar_por:
@@ -23,14 +22,14 @@ def ler_arquivos_csv(diretorio, filtrar_por=''):
                 print(f"Erro ao ler o arquivo {arquivo}: {e}")
 
 
-# Caminho do diretório onde estão os arquivos CSV
-diretorio = r'C:\\Users\\Mathe\\projeto'
+#Caminho do diretório onde estão os arquivos CSV
+diretorio = r'C:\Users\alexa\Downloads\CrawlerProjeto\crawlerProjeto-1'
 
 while True:
     print("Escolha uma opção:")
-    print("1 - Mostrar apenas os cursos da UCL")
-    print("2 - Mostrar apenas os cursos da FUCAPE")
-    print("3 - Mostrar apenas os cursos do IFES")
+    print("1 - UCL")
+    print("2 - FUCAPE")
+    print("3 - IFES")
     print("4 - Mostrar todo o conteúdo")
     print("5 - Sair")
 
