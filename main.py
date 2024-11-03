@@ -12,7 +12,7 @@ def salvar_csv(logs):
     # Pegar a data e hora atuais para o nome do arquivo
     now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     # Definir o caminho completo para salvar o arquivo
-    caminho = r"C:\Users\Mathe\projeto"
+    caminho = r"C:\Users\alexa\Downloads\CrawlerProjeto\crawlerProjeto-1\banco de dados CSV"
     # Verificar se o diretório existe, se não, criar
     if not os.path.exists(caminho):
         os.makedirs(caminho)
@@ -82,7 +82,7 @@ def get_ifes_courses():
         else:
             return ["Div com a classe 'listagem-chamadas-secundarias' não encontrada."]
     else:
-        return [f"Falha ao acessar a página da IFES. Status Code: {response.status_code}"]
+        return [f"Falha ao acessar a página do IFES. Status Code: {response.status_code}"]
 
 
 def adicionar_log(instituicao, cursos):
@@ -98,21 +98,21 @@ def main():
     # Fucape
     print("\nBuscando cursos da Fucape...")
     courses_fucape = get_fucape_courses()
-    print("Cursos da Fucape capturados:")
+    print("Cursos da Fucape:")
     print("\n".join(courses_fucape))
     adicionar_log("Fucape", courses_fucape)
 
     # UCL
     print("\nBuscando cursos da UCL...")
     courses_ucl = get_ucl_courses()
-    print("Cursos da UCL capturados:")
+    print("Cursos da UCL:")
     print("\n".join(courses_ucl))
     adicionar_log("UCL", courses_ucl)
 
     # IFES
     print("\nBuscando cursos do IFES...")
     courses_ifes = get_ifes_courses()
-    print("Cursos do IFES capturados:")
+    print("Cursos do IFES:")
     print("\n".join(courses_ifes))
     adicionar_log("IFES", courses_ifes)
 

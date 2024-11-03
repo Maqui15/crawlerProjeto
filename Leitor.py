@@ -23,7 +23,7 @@ def ler_arquivos_csv(diretorio, filtrar_por=''):
 
 
 #Caminho do diretório onde estão os arquivos CSV
-diretorio = r'C:\Users\alexa\Downloads\CrawlerProjeto\crawlerProjeto-1'
+diretorio = r'C:\Users\alexa\Downloads\CrawlerProjeto\crawlerProjeto-1\banco de dados CSV'
 
 while True:
     print("Escolha uma opção:")
